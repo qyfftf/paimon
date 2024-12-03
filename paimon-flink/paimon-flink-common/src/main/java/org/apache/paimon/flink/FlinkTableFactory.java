@@ -32,7 +32,9 @@ import org.apache.flink.table.factories.DynamicTableFactory;
 
 import static org.apache.paimon.CoreOptions.AUTO_CREATE;
 import static org.apache.paimon.flink.FlinkCatalogFactory.IDENTIFIER;
-
+/**
+ * 创建Flink Paimon Table Source 和 Table Sink
+ */
 /** A paimon {@link DynamicTableFactory} to create source and sink. */
 public class FlinkTableFactory extends AbstractFlinkTableFactory {
 
@@ -57,6 +59,7 @@ public class FlinkTableFactory extends AbstractFlinkTableFactory {
         if (table instanceof FormatCatalogTable) {
             return ((FormatCatalogTable) table).createTableSink(context);
         }
+        //根据配置是否自动创建表
         createTableIfNeeded(context);
         return super.createDynamicTableSink(context);
     }
