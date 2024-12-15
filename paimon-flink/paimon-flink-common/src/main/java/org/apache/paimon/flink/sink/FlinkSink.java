@@ -85,7 +85,7 @@ public abstract class FlinkSink<T> implements Serializable {
         this.ignorePreviousFiles = ignorePreviousFiles;
     }
 
-    //用来提供写算子
+    // 用来提供写算子
     private StoreSinkWrite.Provider createWriteProvider(
             CheckpointConfig checkpointConfig, boolean isStreaming, boolean hasSinkMaterializer) {
         SerializableRunnable assertNoSinkMaterializer =
@@ -98,14 +98,14 @@ public abstract class FlinkSink<T> implements Serializable {
                                         ExecutionConfigOptions.TABLE_EXEC_SINK_UPSERT_MATERIALIZE
                                                 .key(),
                                         ExecutionConfigOptions.UpsertMaterialize.NONE.name()));
-        //获取表的配置项
+        // 获取表的配置项
         Options options = table.coreOptions().toConfiguration();
-        //获取表的changelog producer
+        // 获取表的changelog producer
         ChangelogProducer changelogProducer = table.coreOptions().changelogProducer();
         boolean waitCompaction;
         CoreOptions coreOptions = table.coreOptions();
         if (coreOptions.writeOnly()) {
-            //如果表属性 write-only= true，则不需要等待合并
+            // 如果表属性 write-only= true，则不需要等待合并
             waitCompaction = false;
         } else {
             waitCompaction = coreOptions.prepareCommitWaitCompaction();
@@ -120,7 +120,7 @@ public abstract class FlinkSink<T> implements Serializable {
                                 (fullCompactionThresholdMs
                                         / checkpointConfig.getCheckpointInterval());
             }
-            //如果设置ChangelogProducer为FULL_COMPACTION 会创建GlobalFullCompactionSinkWrite
+            // 如果设置ChangelogProducer为FULL_COMPACTION 会创建GlobalFullCompactionSinkWrite
             if (changelogProducer == ChangelogProducer.FULL_COMPACTION || deltaCommits >= 0) {
                 int finalDeltaCommits = Math.max(deltaCommits, 1);
                 return (table, commitUser, state, ioManager, memoryPool, metricGroup) -> {
@@ -155,7 +155,7 @@ public abstract class FlinkSink<T> implements Serializable {
                         metricGroup);
             };
         }
-        //默认配置会StoreSinkWriteImpl
+        // 默认配置会StoreSinkWriteImpl
         return (table, commitUser, state, ioManager, memoryPool, metricGroup) -> {
             assertNoSinkMaterializer.run();
             return new StoreSinkWriteImpl(
@@ -177,13 +177,13 @@ public abstract class FlinkSink<T> implements Serializable {
         // commit operators.
         // When the job restarts, commitUser will be recovered from states and this value is
         // ignored.
-        //提交用户只是在当前job有效，任务启动后会把该值存入状态中，如果从状态回复 该值仍有效
+        // 提交用户只是在当前job有效，任务启动后会把该值存入状态中，如果从状态回复 该值仍有效
         return sinkFrom(input, createCommitUser(table.coreOptions().toConfiguration()));
     }
 
     public DataStreamSink<?> sinkFrom(DataStream<T> input, String initialCommitUser) {
         // do the actually writing action, no snapshot generated in this stage
-        //在这个过程，会实际写入文件，但不会生成快照
+        // 在这个过程，会实际写入文件，但不会生成快照
         DataStream<Committable> written = doWrite(input, initialCommitUser, input.getParallelism());
         // commit the committable to generate a new snapshot
         return doCommit(written, initialCommitUser);
@@ -213,9 +213,9 @@ public abstract class FlinkSink<T> implements Serializable {
     public DataStream<Committable> doWrite(
             DataStream<T> input, String commitUser, @Nullable Integer parallelism) {
         StreamExecutionEnvironment env = input.getExecutionEnvironment();
-        //获取执行模式
+        // 获取执行模式
         boolean isStreaming = isStreaming(input);
-        //是否为只写入表
+        // 是否为只写入表
         boolean writeOnly = table.coreOptions().writeOnly();
         SingleOutputStreamOperator<Committable> written =
                 input.transform(
@@ -223,15 +223,15 @@ public abstract class FlinkSink<T> implements Serializable {
                                         + " : "
                                         + table.name(),
                                 new CommittableTypeInfo(),
-                                //创建写算子
+                                // 创建写算子
                                 createWriteOperator(
-                                        //会创建初始化StoreSinkWriteImpl
+                                        // 会创建初始化StoreSinkWriteImpl
                                         createWriteProvider(
                                                 env.getCheckpointConfig(),
                                                 isStreaming,
                                                 hasSinkMaterializer(input)),
                                         commitUser))
-                        //设置并行度
+                        // 设置并行度
                         .setParallelism(parallelism == null ? input.getParallelism() : parallelism);
 
         boolean writeMCacheEnabled = table.coreOptions().writeManifestCache().getBytes() > 0;

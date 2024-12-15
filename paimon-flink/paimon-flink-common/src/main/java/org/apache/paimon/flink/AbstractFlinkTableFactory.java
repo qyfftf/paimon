@@ -136,7 +136,7 @@ public abstract class AbstractFlinkTableFactory
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         Table table = buildPaimonTable(context);
-        //血缘相关
+        // 血缘相关
         if (table instanceof FileStoreTable) {
             storeTableLineage(
                     ((FileStoreTable) table).catalogEnvironment().lineageMetaFactory(),

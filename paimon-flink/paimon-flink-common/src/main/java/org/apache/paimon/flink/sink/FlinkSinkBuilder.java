@@ -219,9 +219,9 @@ public class FlinkSinkBuilder {
                                     new LocalMergeOperator(table.schema()))
                             .setParallelism(input.getParallelism());
         }
-        //获取bucket mode
+        // 获取bucket mode
         // 主键表设置bucket=-1为HASH_DYNAMIC模式，如果有分区切分区不为主键则为CROSS_PARTITION，设置bucket>=1则为HASH_FIXED
-        //Append表设置bucket=-1则为BUCKET_UNAWARE模式，置bucket>=1则为HASH_FIXED
+        // Append表设置bucket=-1则为BUCKET_UNAWARE模式，置bucket>=1则为HASH_FIXED
         BucketMode bucketMode = table.bucketMode();
         switch (bucketMode) {
             case HASH_FIXED:
@@ -258,7 +258,7 @@ public class FlinkSinkBuilder {
     }
 
     protected DataStreamSink<?> buildForFixedBucket(DataStream<InternalRow> input) {
-        //根据数据中bucket key的值的hash和bucket数量 重分区
+        // 根据数据中bucket key的值的hash和bucket数量 重分区
         DataStream<InternalRow> partitioned =
                 partition(
                         input,

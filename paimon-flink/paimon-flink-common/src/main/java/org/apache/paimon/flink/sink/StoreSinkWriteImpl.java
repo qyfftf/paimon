@@ -131,7 +131,7 @@ public class StoreSinkWriteImpl implements StoreSinkWrite {
         this.memoryPool = memoryPool;
         this.memoryPoolFactory = memoryPoolFactory;
         this.metricGroup = metricGroup;
-        //创建写入
+        // 创建写入
         this.write = newTableWrite(table);
     }
 

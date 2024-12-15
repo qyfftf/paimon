@@ -111,34 +111,34 @@ public abstract class FlinkTableSinkBase
         }
     }
 
-    //SinkProvider用来创建PaimonSink
+    // SinkProvider用来创建PaimonSink
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         if (overwrite && !context.isBounded()) {
             throw new UnsupportedOperationException(
                     "Paimon doesn't support streaming INSERT OVERWRITE.");
         }
-        //Paimon 之前用Kafak存Log，默认不开启
+        // Paimon 之前用Kafak存Log，默认不开启
         LogSinkProvider logSinkProvider = null;
         if (logStoreTableFactory != null) {
             logSinkProvider = logStoreTableFactory.createSinkProvider(this.context, context);
         }
-        //获取表的配置信息
+        // 获取表的配置信息
         Options conf = Options.fromMap(table.options());
         // Do not sink to log store when overwrite mode
         final LogSinkFunction logSinkFunction =
                 overwrite ? null : (logSinkProvider == null ? null : logSinkProvider.createSink());
-        //创建Painmon
+        // 创建Painmon
         return new PaimonDataStreamSinkProvider(
                 (dataStream) -> {
-                    //log sink
+                    // log sink
                     LogFlinkSinkBuilder builder = createSinkBuilder();
                     builder.logSinkFunction(logSinkFunction)
                             .forRowData(
                                     new DataStream<>(
                                             dataStream.getExecutionEnvironment(),
                                             dataStream.getTransformation()))
-                            //批模式起作用
+                            // 批模式起作用
                             .clusteringIfPossible(
                                     conf.get(CLUSTERING_COLUMNS),
                                     conf.get(CLUSTERING_STRATEGY),
