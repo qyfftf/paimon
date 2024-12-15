@@ -22,7 +22,9 @@ import java.util.Optional;
 
 import static org.apache.paimon.flink.action.ActionFactory.printDefaultHelp;
 
-/** Table maintenance actions for Flink. */
+/**
+ * Table maintenance actions for Flink.
+ */
 public class FlinkActions {
 
     // ------------------------------------------------------------------------
@@ -30,6 +32,7 @@ public class FlinkActions {
     // ------------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
+        System.setProperty("HADOOP_USER_NAME", "root");
         if (args.length < 1) {
             printDefaultHelp();
             System.exit(1);
