@@ -41,7 +41,9 @@ import static org.apache.paimon.utils.ParameterUtils.parseCommaSeparatedKeyValue
 import static org.apache.paimon.utils.ParameterUtils.parseKeyValueList;
 import static org.apache.paimon.utils.ParameterUtils.parseKeyValueString;
 
-/** Factory to create {@link Action}. */
+/**
+ * Factory to create {@link Action}.
+ */
 public interface ActionFactory extends Factory {
 
     Logger LOG = LoggerFactory.getLogger(ActionFactory.class);
@@ -62,11 +64,14 @@ public interface ActionFactory extends Factory {
     Optional<Action> create(MultipleParameterToolAdapter params);
 
     static Optional<Action> createAction(String[] args) {
-        // to be compatible with old usage
+        // to be compatible with old usage 获取到action名字
         String action = args[0].toLowerCase().replaceAll("-", "_");
+        // 获取参数
         String[] actionArgs = Arrays.copyOfRange(args, 1, args.length);
         ActionFactory actionFactory;
         try {
+            // 获取具体action的工厂 以同步mysql单表同步action为例
+            // action名字为mysql_sync_table,会创建MySqlSyncTableActionFactory
             actionFactory =
                     FactoryUtil.discoverFactory(
                             ActionFactory.class.getClassLoader(), ActionFactory.class, action);
@@ -101,6 +106,12 @@ public interface ActionFactory extends Factory {
         System.out.println("For detailed options of each action, run <action> --help");
     }
 
+    /**
+     * 获取paimon的表路径，warehouse+database+table or path 必须满足或门
+     *
+     * @param params
+     * @return
+     */
     default Tuple3<String, String, String> getTablePath(MultipleParameterToolAdapter params) {
         String warehouse = params.get(WAREHOUSE);
         String database = params.get(DATABASE);

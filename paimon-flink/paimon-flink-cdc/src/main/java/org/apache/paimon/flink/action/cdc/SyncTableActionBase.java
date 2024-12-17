@@ -120,15 +120,20 @@ public abstract class SyncTableActionBase extends SynchronizationActionBase {
 
     @Override
     protected void beforeBuildingSourceSink() throws Exception {
+        // 生成唯一标识符
         Identifier identifier = new Identifier(database, table);
         // Check if table exists before trying to get or create it
+        // 检查结果表是否存在
         if (catalog.tableExists(identifier)) {
             fileStoreTable = (FileStoreTable) catalog.getTable(identifier);
             fileStoreTable = alterTableOptions(identifier, fileStoreTable);
             try {
+                // 获取schema信息
                 Schema retrievedSchema = retrieveSchema();
+                // 构建计算列，computedColumns就是从现存的列加函数生成一个新的列
                 computedColumns =
                         buildComputedColumns(computedColumnArgs, retrievedSchema.fields());
+                // 构建paimon表
                 Schema paimonSchema = buildPaimonSchema(retrievedSchema);
                 assertSchemaCompatible(fileStoreTable.schema(), paimonSchema.fields());
             } catch (SchemaRetrievalException e) {

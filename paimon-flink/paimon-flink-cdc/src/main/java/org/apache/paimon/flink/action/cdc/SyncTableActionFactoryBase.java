@@ -44,6 +44,7 @@ public abstract class SyncTableActionFactoryBase
     @Override
     public Optional<Action> create(MultipleParameterToolAdapter params) {
         this.tablePath = getTablePath(params);
+        // 调用父类的create方法
         return super.create(params);
     }
 

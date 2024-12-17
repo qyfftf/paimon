@@ -109,13 +109,14 @@ public abstract class SynchronizationActionBase extends ActionBase {
     @Override
     public void build() throws Exception {
         syncJobHandler.checkRequiredOption();
-
+        //使用catalog创建database
         catalog.createDatabase(database, true);
-
+        // 校验大小写是否敏感
         validateCaseSensitivity();
-
+        // 在构建source sink之前 mysql table schema生成，paimon表如果存在则校验表结构，不存在直接创建表
         beforeBuildingSourceSink();
 
+        // 获取Mysql DataStream Source
         DataStream<RichCdcMultiplexRecord> input =
                 buildDataStreamSource(buildSource()).flatMap(recordParse()).name("Parse");
 

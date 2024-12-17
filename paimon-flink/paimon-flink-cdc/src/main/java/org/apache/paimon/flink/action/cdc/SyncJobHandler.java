@@ -95,6 +95,7 @@ public class SyncJobHandler {
     }
 
     public void checkRequiredOption() {
+        // 根据同步数据源类型进行参数校验
         switch (sourceType) {
             case MYSQL:
                 checkRequiredOptions(

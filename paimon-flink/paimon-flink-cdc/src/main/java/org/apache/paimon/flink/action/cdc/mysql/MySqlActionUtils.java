@@ -102,6 +102,7 @@ public class MySqlActionUtils {
             List<Identifier> excludedTables,
             TypeMapping typeMapping)
             throws Exception {
+        // 数据库名的正则
         Pattern databasePattern =
                 Pattern.compile(mySqlConfig.get(MySqlSourceOptions.DATABASE_NAME));
         JdbcSchemasInfo mySqlSchemasInfo = new JdbcSchemasInfo();

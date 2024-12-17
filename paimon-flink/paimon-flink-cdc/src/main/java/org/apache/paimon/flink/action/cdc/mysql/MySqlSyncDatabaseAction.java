@@ -114,11 +114,16 @@ public class MySqlSyncDatabaseAction extends SyncDatabaseActionBase {
         return this;
     }
 
+    /**
+     * 整库同步算子
+     * @throws Exception
+     */
     @Override
     protected void beforeBuildingSourceSink() throws Exception {
         Pattern includingPattern = Pattern.compile(includingTables);
         Pattern excludingPattern =
                 excludingTables == null ? null : Pattern.compile(excludingTables);
+        // 获取所有需要采集的表
         JdbcSchemasInfo mySqlSchemasInfo =
                 MySqlActionUtils.getMySqlTableInfos(
                         cdcSourceConfig,
@@ -126,7 +131,7 @@ public class MySqlSyncDatabaseAction extends SyncDatabaseActionBase {
                                 shouldMonitorTable(tableName, includingPattern, excludingPattern),
                         excludedTables,
                         typeMapping);
-
+        // 非主键表会被加在excludeTables中
         logNonPkTables(mySqlSchemasInfo.nonPkTables());
         List<JdbcTableInfo> jdbcTableInfos = mySqlSchemasInfo.toMySqlTableInfos(mergeShards);
 
@@ -138,6 +143,7 @@ public class MySqlSyncDatabaseAction extends SyncDatabaseActionBase {
 
         TableNameConverter tableNameConverter =
                 new TableNameConverter(allowUpperCase, mergeShards, tablePrefix, tableSuffix);
+        // 遍历表集合 生成schema信息
         for (JdbcTableInfo tableInfo : jdbcTableInfos) {
             Identifier identifier =
                     Identifier.create(
@@ -156,6 +162,7 @@ public class MySqlSyncDatabaseAction extends SyncDatabaseActionBase {
                             false,
                             true);
             try {
+                // 获取paimon表 如果不存在 则会进行catch代码块
                 table = (FileStoreTable) catalog.getTable(identifier);
                 Supplier<String> errMsg =
                         incompatibleMessage(table.schema(), tableInfo, identifier);
@@ -167,6 +174,7 @@ public class MySqlSyncDatabaseAction extends SyncDatabaseActionBase {
                     excludedTables.addAll(tableInfo.identifiers());
                 }
             } catch (Catalog.TableNotExistException e) {
+                // 不存在的paimon table会自动创建
                 catalog.createTable(identifier, fromMySql, false);
                 table = (FileStoreTable) catalog.getTable(identifier);
                 tables.add(table);

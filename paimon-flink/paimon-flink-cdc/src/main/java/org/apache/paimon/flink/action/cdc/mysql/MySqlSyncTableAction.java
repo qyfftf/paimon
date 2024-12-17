@@ -91,6 +91,7 @@ public class MySqlSyncTableAction extends SyncTableActionBase {
 
     @Override
     protected Schema retrieveSchema() throws Exception {
+        // 获取表的schema信息
         this.mySqlSchemasInfo =
                 MySqlActionUtils.getMySqlTableInfos(
                         cdcSourceConfig, monitorTablePredication(), new ArrayList<>(), typeMapping);

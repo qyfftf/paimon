@@ -38,10 +38,13 @@ public abstract class SynchronizationActionFactoryBase<T extends Synchronization
 
     @Override
     public Optional<Action> create(MultipleParameterToolAdapter params) {
+        // 参数校验
         checkRequiredArgument(params, cdcConfigIdentifier());
+        // 构造catalog配置
         this.catalogConfig = optionalConfigMap(params, CATALOG_CONF);
+        // 构造cdc配置
         this.cdcSourceConfig = optionalConfigMap(params, cdcConfigIdentifier());
-
+        //创建对应的MySqlSyncTableAction
         T action = createAction();
 
         action.withTableConfig(optionalConfigMap(params, TABLE_CONF));

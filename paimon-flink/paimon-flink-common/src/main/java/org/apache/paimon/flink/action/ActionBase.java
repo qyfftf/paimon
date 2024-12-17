@@ -53,6 +53,11 @@ public abstract class ActionBase implements Action {
     protected StreamExecutionEnvironment env;
     protected StreamTableEnvironment batchTEnv;
 
+    /**
+     * 所有action的初始化都会走到ActionBase的初始化构造方法
+     * @param warehouse
+     * @param catalogConfig
+     */
     public ActionBase(String warehouse, Map<String, String> catalogConfig) {
         catalogOptions = Options.fromMap(catalogConfig);
         catalogOptions.set(CatalogOptions.WAREHOUSE, warehouse);
@@ -61,7 +66,7 @@ public abstract class ActionBase implements Action {
         if (!catalogOptions.contains(CACHE_ENABLED)) {
             catalogOptions.set(CACHE_ENABLED, false);
         }
-
+        //初始化catalog
         catalog = initPaimonCatalog();
         flinkCatalog = initFlinkCatalog();
 
@@ -86,6 +91,7 @@ public abstract class ActionBase implements Action {
         this.env = env;
         // we enable object reuse, we copy the un-reusable object ourselves.
         this.env.getConfig().enableObjectReuse();
+        // 构建一个批的tableEnv对象
         batchTEnv = StreamTableEnvironment.create(this.env, EnvironmentSettings.inBatchMode());
 
         // register flink catalog to table environment
